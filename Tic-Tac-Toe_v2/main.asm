@@ -1,5 +1,3 @@
-; space open 10,426 bytes
-
 a_punch			=	$01
 b_punch			=	$02
 select_punch	=	$04
@@ -177,11 +175,11 @@ wait_for_tune:
 	bpl :-
 	dex
 	bne wait_for_tune
-	lda #$0						; Load song 1
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$0						; Load song 1
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	
 	lda #$01
 	sta whose_turn
@@ -189,7 +187,7 @@ hold_title:				; YOU ARE HERE
 	lda title_select
 	cmp #$01
 	bne keep_holding_title
-	jmp instructions0
+	;jmp instructions0
 keep_holding_title:
 	lda game_start
 	cmp #$01
@@ -221,15 +219,15 @@ keep_holding_title:
 ;	jsr PPU_no_sprites
 	jsr PPU_with_sprites
 
-	lda #$1						; Load song 2
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$1						; Load song 2
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 
-	lda #$00					; Load 0 in game_start so the sound
-	sta game_start				; effects won't trigger through buttons
-	ldx #$60					; Kill a bit of time before the sprites
+	;lda #$00					; Load 0 in game_start so the sound
+	;sta game_start				; effects won't trigger through buttons
+	;ldx #$60					; Kill a bit of time before the sprites
 wait_it_out:					; get loaded. Raise X above wait_it_out
 :	bit $2002					; to waste more time. Use vblank to do
 	bpl :-						; this. Decrement X and loop until X
@@ -246,11 +244,11 @@ wait_it_out:					; get loaded. Raise X above wait_it_out
     cpx #$2c					; get stored starting in $200, where
     bne :-						; 'sprite' is located at.
 
-	lda #$2						; Load song 3
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$2						; Load song 3
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 
 reinit_variables:
 	lda #$01
@@ -2170,12 +2168,12 @@ end_computer:
 	sta $2006
 	lda #$0b
 	sta $2006
-	lda stalemate
-:	sta $2007
-	inx
-	lda stalemate,x
-	cpx #$0a
-	bne :-
+	;lda stalemate
+;:	sta $2007
+;	inx
+;	lda stalemate,x
+	;cpx #$0a
+	;bne :-
 	lda stalecount
 	inc stalecount
 :	bit $2002
@@ -2185,12 +2183,12 @@ end_computer:
 	sta $2006
 	lda #$2b
 	sta $2006
-	lda blank_under_stale
-:	sta $2007
-	inx
-	lda blank_under_stale,x
-	cpx #$0a
-	bne :-
+	;lda blank_under_stale
+;:	sta $2007
+	;inx
+	;lda blank_under_stale,x
+	;cpx #$0a
+	;bne :-
 :	bit $2002
 	bpl :-
 	lda #$00
@@ -2208,42 +2206,42 @@ pass_whose_turn:
 	jsr clear_topleft
 	jsr clear_top
 	jsr clear_topright
-	lda #$3						; Load song 4
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$3						; Load song 4
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr PPU_no_sprites
 	jsr waste_all_time
 	jsr clear_left
 	jsr clear_middle
 	jsr clear_right
-	lda #$3						; Load song 4
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$3						; Load song 4
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr PPU_no_sprites
 	jsr waste_all_time
 	jsr clear_bottomleft
 	jsr clear_bottom
 	jsr clear_bottomright
 
-	lda #$3						; Load song 4
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$3						; Load song 4
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr PPU_with_sprites
 	lda player_won
 	cmp #$01
 	beq clear_for_player_win
 	jsr waste_all_time
-	lda #$2						; Load song 3
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$2						; Load song 3
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 
 	jmp reinit_variables
 clear_for_player_win:
@@ -2456,12 +2454,12 @@ fix_board:
 	sta $2006
 	lda #$0b
 	sta $2006
-	lda fix_message
-:	sta $2007
-	inx
-	lda fix_message,x
-	cpx #$0a
-	bne :-
+	;lda fix_message
+;:	sta $2007
+	;inx
+	;lda fix_message,x
+	;cpx #$0a
+	;bne :-
 	lda #$00
 	sta $2006
 	sta $2006
@@ -2472,12 +2470,12 @@ fix_board:
 	sta $2006
 	lda #$2b
 	sta $2006
-	lda under_fix_message
-:	sta $2007
-	inx
-	lda under_fix_message,x
-	cpx #$0a
-	bne :-
+	;lda under_fix_message
+;:	sta $2007
+	;inx
+	;lda under_fix_message,x
+	;cpx #$0a
+	;bne :-
 :	bit $2002
 	bpl :-
 	lda #$00
@@ -2869,11 +2867,11 @@ computer_win:
 	stx $2001
 	jsr PPU_no_sprites
 
-	lda #$4						; Load song 5
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$4						; Load song 5
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr waste_all_time
 	jsr waste_all_time
 	ldx #$00
@@ -3100,12 +3098,12 @@ youwin_words:
 	sta $2006
 	lda #$0b
 	sta $2006
-	lda youwin
-:	sta $2007
-	inx
-	lda youwin,x
-	cpx #$0a
-	bne :-
+	;lda youwin
+;:	sta $2007
+;	inx
+;	lda youwin,x
+;	cpx #$0a
+;	bne :-
 :	bit $2002
 	bpl :-
    	ldx #$00
@@ -3113,12 +3111,12 @@ youwin_words:
 	sta $2006
 	lda #$2b
 	sta $2006
-	lda blank_under_stale
-:	sta $2007
-	inx
-	lda blank_under_stale,x
-	cpx #$0a
-	bne :-
+	;lda blank_under_stale
+;:	sta $2007
+;	inx
+;	lda blank_under_stale,x
+	;cpx #$0a
+	;bne :-
 :	bit $2002
 	bpl :-
 	lda #$00
@@ -3132,32 +3130,32 @@ youwin_words:
 	jsr clear_topleft
 	jsr clear_top
 	jsr clear_topright
-	lda #$3						; Load song 4
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$3						; Load song 4
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr PPU_no_sprites
 	jsr waste_all_time
 	jsr clear_left
 	jsr clear_middle
 	jsr clear_right
-	lda #$3						; Load song 4
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$3						; Load song 4
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr PPU_no_sprites
 	jsr waste_all_time
 	jsr clear_bottomleft
 	jsr clear_bottom
 	jsr clear_bottomright
 
-	lda #$3						; Load song 4
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$3						; Load song 4
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	lda inc_win
 	inc inc_win
 check_comp_lose_whole_game:
@@ -3172,11 +3170,11 @@ continue_game_more:
 ;	beq clear_for_player_win
 	jsr waste_all_time
 
-	lda #$2						; Load song 3
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$2						; Load song 3
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jmp reinit_variables
 
 computer_beaten_now:
@@ -3188,9 +3186,9 @@ computer_beaten_now:
 	sta no_control
 	ldy #$00					; load game screen
 	ldx #$04
-	lda #<beat_it
+	lda #<final
 	sta $10
-	lda #>beat_it
+	lda #>final
 	sta $11
 	lda #$20
 	sta $2006
@@ -3204,11 +3202,11 @@ computer_beaten_now:
 	dex
 	bne :-
 	jsr PPU_no_sprites
-	lda #$5						; Load song 6
-	ldx #$00
-	jsr init
-	lda #%10000000
-	sta $2000
+	;lda #$5						; Load song 6
+	;ldx #$00
+	;jsr init
+	;lda #%10000000
+	;sta $2000
 	jsr waste_all_time
 	jsr waste_all_time
 	jsr waste_all_time
@@ -3242,7 +3240,7 @@ play2:
 	and control_pad2
 	and #right_punch
 	beq no_play2
-	jsr hidden_thanks
+	;jsr hidden_thanks
 no_play2:
 	rts
 controller:
@@ -3270,7 +3268,7 @@ controller:
 	ldx #$04
 	stx $4015
 	ldx #$00
-	jsr fx_routine
+	;jsr fx_routine
 skip_right_effects:
 	lda game_start
 	bne no_rightshift	 		; YOU ARE HERE
@@ -3309,7 +3307,7 @@ no_right_punch:
 	ldx #$04
 	stx $4015
 	ldx #$00
-	jsr fx_routine
+	;jsr fx_routine
 skip_left_effects:
 	lda game_start
 	bne no_leftshift	 		; YOU ARE HERE
@@ -3348,7 +3346,7 @@ no_left_punch:
 	ldx #$04
 	stx $4015
 	ldx #$00
-	jsr fx_routine
+	;jsr fx_routine
 skip_down_effects:
 	lda doing_item4
 	bne no_down_punch
@@ -3381,7 +3379,7 @@ no_down_punch:
 	ldx #$04
 	stx $4015
 	ldx #$00
-	jsr fx_routine
+	;jsr fx_routine
 skip_up_effects:
 	lda doing_item4
 	bne no_up_punch
@@ -3429,7 +3427,7 @@ no_start_punch:
 	ldx #$04
 	stx $4015
 	ldx #$04
-	jsr fx_routine
+	;jsr fx_routine
 skip_select_effects:
 	lda game_start
 	bne no_instructions			; YOU ARE HERE
@@ -4479,135 +4477,6 @@ skip_turn9:
 no_a_punch:
 	rts
 
-cant_place_x:
-	jsr fx_routine
-
-hidden_thanks:
-	lda #$00					; turn off PPU
-	sta $2000
-	sta $2001
-;	sta no_control
-	ldy #$00					; load game screen
-	ldx #$04
-	lda #<thanks
-	sta $10
-	lda #>thanks
-	sta $11
-	lda #$20
-	sta $2006
-	lda #$00
-	sta $2006
-:	lda ($10),y
-	sta $2007
-	iny
-	bne :-
-	inc $11
-	dex
-	bne :-
-	jsr PPU_no_sprites
-	lda #$01
-	sta cant_see_hidden
-	rts
-
-fx_routine:
-	lda sound_fx,x
-	sta $4000
-	inx
-	lda sound_fx,x
-	sta $4001
-	inx
-	lda sound_fx,x
-	sta $4002
-	inx
-	lda sound_fx,x
-	sta $4003
-	inx
-	rts
-
-instructions0:
-	lda #$00					; turn off PPU
-	sta $2000
-	sta $2001
-;	sta no_control
-	ldy #$00					; load game screen
-	ldx #$04
-	lda #<instr0
-	sta $10
-	lda #>instr0
-	sta $11
-	lda #$20
-	sta $2006
-	lda #$00
-	sta $2006
-:	lda ($10),y
-	sta $2007
-	iny
-	bne :-
-	inc $11
-	dex
-	bne :-
-	lda #$01
-	sta cant_see_hidden
-	jsr PPU_no_sprites
-hold_instr0:
-	lda game_start
-	cmp #$01
-	bne check_switch1
-	jmp keep_holding_title
-check_switch1:
-	lda instr_switch
-	cmp #$01
-	bne keep_holding_instructions
-	lda #$00
-	sta instr_switch2
-	jmp instructions1
-keep_holding_instructions:
-	lda instr_hold
-	cmp #$01
-	bne hold_instr0
-
-
-instructions1:
-	lda #$00					; turn off PPU
-	sta $2000
-	sta $2001
-;	sta no_control
-	ldy #$00					; load game screen
-	ldx #$04
-	lda #<instr1
-	sta $10
-	lda #>instr1
-	sta $11
-	lda #$20
-	sta $2006
-	lda #$00
-	sta $2006
-:	lda ($10),y
-	sta $2007
-	iny
-	bne :-
-	inc $11
-	dex
-	bne :-
-	lda #$01
-	sta cant_see_hidden
-	jsr PPU_with_sprites
-hold_instr1:
-	lda game_start
-	cmp #$01
-	bne check_switch2
-	jmp keep_holding_title
-check_switch2:
-	lda instr_switch2
-	cmp #$01
-	bne keep_holding_instructions2
-	lda #$00
-	sta instr_switch
-	jmp instructions0
-keep_holding_instructions2:
-	lda instr_hold
-	cmp #$01
-	bne hold_instr1
 ; *********************************************************
 ; sprite_cram is the routine to update all sprites when   *
 ; an NMI is triggered.                                    *
@@ -4743,55 +4612,31 @@ o_tiles:
 	.byte $a4,$00,$00,$a7
 	.byte $b4,$b5,$b6,$b7
 
-; *********************************************************
-; Include all of the nametables for the game below        *
-; *********************************************************
-
 title:
-.incbin "ttxo_title.nam"
+.incbin "title.nam"
 
 board:
-.incbin "ttxo_board.nam"
+.incbin "board.nam"
 
-instr0:
-.incbin "ttxo_instr0.nam"
+final:
+.incbin "final.nam"
 
-instr1:
-.incbin "ttxo_instr1.nam"
-
-beat_it:
-.incbin "ttxo_final.nam"
-
-thanks:
-.incbin "ttxo_hidden.nam"
-
-; *********************************************************
-; Sound effects down here                                 *
-; *********************************************************
-
-sound_fx:
-	.byte $c0,$50,$00,$1b		; Move main cursor sound
-	.byte $c0,$00,$00,$0b		; Move item cursor sound
-
-stalemate:
-	.byte $52,$53,$40,$4b,$44,$4c,$40,$53,$44,$20
-blank_under_stale:
-	.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-fix_message:
-	.byte $09,$0a,$08,$08,$08,$08,$08,$08,$09,$0a
-under_fix_message:
-	.byte $0b,$0c,$07,$07,$07,$07,$07,$07,$0b,$0c
-youwin:
-	.byte $00,$58,$4e,$54,$00,$56,$48,$4d,$20,$00
+; NIE USUWAĆ TO!
+;stalemate:
+;	.byte $52,$53,$40,$4b,$44,$4c,$40,$53,$44,$20
+;blank_under_stale:
+;	.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;fix_message:
+;	.byte $09,$0a,$08,$08,$08,$08,$08,$08,$09,$0a
+;under_fix_message:
+;	.byte $0b,$0c,$07,$07,$07,$07,$07,$07,$0b,$0c
+;youwin:
+	;.byte $00,$58,$4e,$54,$00,$56,$48,$4d,$20,$00
 game_over:
 	.byte $46,$40,$4c,$44
 	.byte $00,$00,$00,$00
 	.byte $4e,$55,$44,$51
 	.byte $00,$00,$00,$00
-congratulations:
-	.byte $42,$4e,$4d,$46,$51,$40,$53,$54,$4b,$40,$53,$48,$4e,$4d,$52,$20
-press_start_words:
-	.byte $4f,$51,$44,$52,$52,$00,$52,$53,$40,$51,$53,$20
 
 .segment "VECTORS"
 	.addr nmi

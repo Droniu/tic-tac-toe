@@ -1,9 +1,6 @@
-all: ttxo
+all: main
 
-ttxo: ttxo.asm
-	ca65 ttxo.asm -g -o ttxo.o
-	ld65 -C ttxo.cfg -o ttxo.prg ttxo.o
-	cat ttxo.hdr ttxo.prg ttxo.chr > ttxo.nes
-
-
-
+main: main.asm
+	ca65 main.asm -g -o main.o
+	ld65 -C memory.cfg -o main.prg main.o
+	cat ttxo.hdr main.prg graphics.chr > Tic-Tac-Toe.nes
