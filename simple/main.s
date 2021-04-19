@@ -1,91 +1,129 @@
-.segment "HEADER"
-    .byte "NES"
-    .byte $1a
-    .byte $02
-    .byte $01
-    .byte %00000000
+.segment "HEADER" ; what code is
+    .byte "NES" ; beginning of the NES Header
+    .byte $1a ; signature of NES Header
+    .byte $02 ; 2*16 KiB PRG ROM
+    .byte $01 ; 1*8 KiB CHR ROM
+    .byte %00000000 ; mapper and mirroring
+    .byte $00 ; not important in this project
     .byte $00
     .byte $00
     .byte $00
-    .byte $00
-    .byte $00,$00,$00,$00,$00
-
-.segment "STARTUP"
+    .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
-flag: .res 1
-counter: .res 1
-.segment "CODE"
+.segment "STARTUP" ; where code starts
+    Reset:
+        sei ; disables all interrupts on NES
+        cld ; disable decimal mode - NES doesn't support it
+        
+        ldx #$40 ; disable sound IRQ (load -> reg. x, store -> 4017)
+        stx $4017 
 
-WAITVBLANK:
-:
-    BIT $2002
-    BPL :-
-    RTS
+        ldx #$FF ; initialize stack register
+        txs ; transfer x stack
 
-RESET:
-  SEI          ; disable IRQs
-  CLD          ; disable decimal mode
-  LDX #$40
-  STX $4017    ; disable APU frame IRQ
-  LDX #$FF
-  TXS          ; Set up stack
-  INX          ; now X = 0
-  STX $2000    ; disable NMI
-  STX $2001    ; disable rendering
-  STX $4010    ; disable DMC IRQs
+        inx ; ff + 1 = 00
 
-  JSR WAITVBLANK
+        ; Clean PPU registers
+        stx $2000
+        stx $2001
 
-clrmem:
-  LDA #$00
-  STA $0000, x
-  STA $0100, x
-  STA $0200, x
-  STA $0400, x
-  STA $0500, x
-  STA $0600, x
-  STA $0700, x
-  LDA #$FE
-  STA $0300, x
-  INX
-  BNE clrmem
+        stx $4010 ; Disable PCM channel
+        
+        : ; anonymous label
+        bit $2002; $2002 is telling if PPU is currently drawing
+        bpl :- ; branch if not in VBLANK (not waiting for another screen)
+        ; :- means go to last anonymous label, :+ go to next anonymous label
 
-  LDA #%10001000
-  STA flag
-   
-  JSR WAITVBLANK
+        txa 
 
-  LDA #%00000000
-  STA counter
-  STA $2001
-  LDA #%10001000
-  STA $2000
-  LDA #$3F
-  STA $2006
-  LDA #$00
-  STA $2006
-  STA $2007
-  CLI
-Forever:
-  JMP Forever  
+    ; Memory clearing
+    CLEARMEM:
+        sta $0000, X ; $0000 -> $00FF
+        sta $0100, X
+
+        sta $0300, X
+        sta $0400, X
+        sta $0500, X 
+        sta $0600, X
+        sta $0700, X
+
+        ; one of the ranges is for sprie data. we can choose any
+        lda #$FF
+        sta $0200, X
+        lda #$00
+
+        inx
+        bne CLEARMEM 
+
+    ; wait for VBLANK again
+    :
+        bit $2002
+        bpl :-
+
+        lda #$02 ; MSB of sprite data memory range
+        sta $4014 ; Object Attribute Memory DMA register
+        nop ; ppu needs a moment to load data
+
+        ; preparing ppu memory 
+        lda #$3F
+        sta $2006
+        lda #$00
+        sta $2006
+
+        ldx #$00
+
+    LoadPalettes:
+        lda PaletteData, X
+        sta $2007 ; $3F00, $3F01, and so on
+
+        ; loop
+        inx
+        cpx #$20 ; 32 in decimal
+        bne LoadPalettes
+
+        ldx #$00
+    
+    LoadSprites:
+        lda SpriteData, X
+        sta $0200, X
+        inx
+        cpx #$20
+        bne LoadSprites
+    
+    ; enable interrupts
+        cli
+        lda #%10010000 ; enable NMI, use second set of sprites
+        sta $2000
+        ; enable drawing in leftmost 8px of screen and in general
+        lda #%00011110
+        sta $2001
+
+    Forever:
+        jmp Forever ; prevents going to NMI after pushing reset
+
+    NMI:
+        ; loading sprites from $0200 to ppu memory
+        lda #$02 ; (2 because this is MSB)
+        sta $4014
+        
+        rti ; interrupt return
+
+    PaletteData: ;example
+        .byte $22,$29,$1A,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F  ;background palette data
+        .byte $22,$16,$27,$18,$22,$1A,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17  ;sprite palette data
+    SpriteData: ;example
+        .byte $08, $00, $00, $08
+        .byte $08, $01, $00, $10
+        .byte $10, $02, $00, $08
+        .byte $10, $03, $00, $10
+        .byte $18, $04, $00, $08
+        .byte $18, $05, $00, $10
+        .byte $20, $06, $00, $08
+        .byte $20, $07, $00, $10
+
   
-VBLANK:
-  INC counter
-  LDA counter
-  CMP #$3C
-  BNE SkipColorChange
-  LDA flag
-  EOR #%10000000
-  STA flag
-  STA $2001
-  LDA #$00
-  STA counter
- SkipColorChange:
-  RTI
-
-.segment "VECTORS"
-    .word VBLANK
-    .word RESET
-    .word 0
-
-.segment "CHARS"  
+.segment "VECTORS" ; special address which 6502 needs
+    .word NMI ; refresh time
+    .word Reset ; reset button
+.segment "CHARS" ; graphical data
+    .incbin "example_sprites.chr"
