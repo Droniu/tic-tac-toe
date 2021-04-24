@@ -98,6 +98,8 @@
         lda #%00011110
         sta $2001
 
+        
+
     Forever:
         jmp Forever ; prevents going to NMI after pushing reset
 
@@ -109,9 +111,11 @@
         rti ; interrupt return
 
     PaletteData: ;example
-        .byte $22,$29,$1A,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F  ;background palette data
-        .byte $22,$16,$27,$18,$22,$1A,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17  ;sprite palette data
-    SpriteData: ;example
+        ; background palette data
+        .byte $22,$29,$1A,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
+        ; sprite palette data  
+        .byte $22,$16,$27,$18,$22,$1A,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
+    SpriteData: ; example
         .byte $08, $00, $00, $08
         .byte $08, $01, $00, $10
         .byte $10, $02, $00, $08
