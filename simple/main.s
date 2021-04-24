@@ -103,6 +103,30 @@
     Forever:
         jmp Forever ; prevents going to NMI after pushing reset
 
+    ; ; ; ; ; ; ; ; ; ; ; ;
+    ; INTERRUPTS SECTION  ;
+    ; ; ; ; ; ; ; ; ; ; ; ;
+    
+    PPU_off:
+        lda #$00
+        sta $2000
+        sta $2001
+        rts
+    
+    PPU_with_sprites:
+        lda #%10000000
+        sta $2000
+        lda #%00011110
+        sta $2001
+        rts
+    
+    PPU_no_sprites:
+        lda #%10000000
+        sta $2000
+        lda #%00001110
+        sta $2001
+        rts
+
     NMI:
         ; loading sprites from $0200 to ppu memory
         lda #$02 ; (2 because this is MSB)
