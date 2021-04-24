@@ -15,4 +15,5 @@
 *.nes
 
 Programs/
+tools/
 *.dbg
