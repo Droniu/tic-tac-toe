@@ -10,6 +10,7 @@
     .byte $00
     .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
+    background: .res 2
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -81,9 +82,45 @@
         cpx #$20 ; 32 in decimal
         bne LoadPalettes
 
+        ; initialize world variable to point to world data
+        lda #<BGData
+        sta background
+        lda #>BGData
+        sta background+1
+
+        ; setup address in PPU for nametable data
+        bit $2002
+        lda #$20
+        sta $2006
+        lda #$00
+        sta $2006        
+
+
+        ldx #$00
+        ldy #$00
+
+    LoadBackground:
+        lda (background), Y
+        sta $2007
+        iny
+        ; 960 px is 03 C0 in hex
+        cpx #$03
+        bne :+
+        cpy #$C0
+        beq DoneLoadingBG
+    :
+        cpy #$00
+        bne LoadBackground
+        inx
+        inc background+1
+        jmp LoadBackground
+
+
+    DoneLoadingBG:
         ldx #$00
     
     LoadSprites:
+
         lda SpriteData, X
         sta $0200, X
         inx
@@ -149,9 +186,12 @@
         .byte $20, $06, $00, $08
         .byte $20, $07, $00, $10
 
-  
+    BGData:
+        .incbin "grid.bin"
+
+
 .segment "VECTORS" ; special address which 6502 needs
     .word NMI ; refresh time
     .word Reset ; reset button
 .segment "CHARS" ; graphical data
-    .incbin "example_sprites.chr"
+    .incbin "tictactoe.chr"
