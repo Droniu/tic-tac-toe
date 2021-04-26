@@ -176,15 +176,13 @@
         .byte $22,$29,$1A,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
         ; sprite palette data  
         .byte $22,$16,$27,$18,$22,$1A,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
+    ; 1st byte: y-offset
+    ; 2nd byte: tile
+    ; 3rd byte: ?
+    ; 4th byte: x-offset
     SpriteData: ; example
-        .byte $08, $00, $00, $08
-        .byte $08, $01, $00, $10
-        .byte $10, $02, $00, $08
-        .byte $10, $03, $00, $10
-        .byte $18, $04, $00, $08
-        .byte $18, $05, $00, $10
-        .byte $20, $06, $00, $08
-        .byte $20, $07, $00, $10
+        .byte $BF, $04, $00, $80
+
 
     BGData:
         .incbin "grid.bin"
