@@ -1,3 +1,5 @@
+Pressing = $06
+
 .segment "HEADER" ; what code is
     .byte "NES" ; beginning of the NES Header
     .byte $1a ; signature of NES Header
@@ -33,7 +35,8 @@
         : ; anonymous label
         bit $2002; $2002 is telling if PPU is currently drawing
         bpl :- ; branch if not in VBLANK (not waiting for another screen)
-        ; :- means go to last anonymous label, :+ go to next anonymous label
+        ; :- means go to last anonymous label, 
+        ; :+ go to next anonymous label
 
         txa 
 
@@ -95,7 +98,6 @@
         lda #$00
         sta $2006        
 
-
         ldx #$00
         ldy #$00
 
@@ -134,47 +136,56 @@
         ; enable drawing in leftmost 8px of screen and in general
         lda #%00011110
         sta $2001
-
         
 
     Forever:
         jmp Forever ; prevents going to NMI after pushing reset
 
     ; ; ; ; ; ; ; ; ; ; ; ;
-    ; INTERRUPTS SECTION  ;
+    ; SUBROUTINES SECTION ;
     ; ; ; ; ; ; ; ; ; ; ; ;
     
-    PPU_off:
-        lda #$00
-        sta $2000
-        sta $2001
-        rts
-    
-    PPU_with_sprites:
-        lda #%10000000
-        sta $2000
-        lda #%00011110
-        sta $2001
-        rts
-    
-    PPU_no_sprites:
-        lda #%10000000
-        sta $2000
-        lda #%00001110
-        sta $2001
-        rts
+    CheckController:
+        lda #$01
+        sta $4016 ; strobe controller
+        ldx #$00
+        stx $4016 ; latch controller status
+    ConLoop:
+        ; reading 4016 eight times in order to check buttons.
+        ; we use carry flag to write button status to variables
+        ; first we use lsr to shift LSB to carry flag, then
+        ; we use ROR to shift 0 to carry and carry to variable.
+        
+        lda $4016 ; %0000001 
+        lsr
+        ror Pressing  ; RLDUsSBA
+        inx
+        cpx #$08
+        bne ConLoop
+
+
+    ; ; ; ; ; ; ; ; ; ; ; ;
+    ; INTERRUPTS SECTION  ;
+    ; ; ; ; ; ; ; ; ; ; ; ;
 
     NMI:
         ; loading sprites from $0200 to ppu memory
         lda #$02 ; (2 because this is MSB)
         sta $4014
+
+        jsr CheckController
         
         rti ; interrupt return
 
+
+    ; ; ; ; ; ; ; ; ; ; ; ;
+    ;   DATA / INCLUDES   ;
+    ; ; ; ; ; ; ; ; ; ; ; ;
+
     PaletteData: ;example
-        ; background palette data
+        ; example background palette data
         .byte $22,$29,$1A,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
-        ; sprite palette data  
+        ; example sprite palette data  
         .byte $22,$16,$27,$18,$22,$1A,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
     ; 1st byte: y-offset
     ; 2nd byte: tile
@@ -182,7 +193,6 @@
     ; 4th byte: x-offset
     SpriteData: ; example
         .byte $BF, $04, $00, $80
-
 
     BGData:
         .incbin "grid.bin"
