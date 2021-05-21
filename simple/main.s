@@ -12,6 +12,7 @@
 .segment "ZEROPAGE"
     background: .res 2
     pressing: .res 1
+    debug: .res 1
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -137,8 +138,10 @@
         sta $2001
         
 
+
     Forever:
         jmp Forever ; prevents going to NMI after pushing reset
+
 
     ; ; ; ; ; ; ; ; ; ; ; ;
     ; SUBROUTINES SECTION ;
@@ -166,34 +169,53 @@
             lda #%10000000
             and pressing
             beq CheckLeft
+           jsr MoveRight
         CheckLeft:
             lda #%01000000
             and pressing
             beq CheckDown
+            jsr MoveLeft
         CheckDown:
             lda #%00100000
             and pressing
             beq CheckUp
+            jsr MoveDown
         CheckUp:
             lda #%00010000
             and pressing
-            beq CheckStart
-        CheckStart:
-            lda #%00001000
-            and pressing
-            beq CheckSelect
-        CheckSelect:
-            lda #%00000100
-            and pressing
-            beq CheckB
-        CheckB:
-            lda #%00000010
-            and pressing
             beq CheckA
+            jsr MoveUp
         CheckA:
             lda #%00000001
             and pressing
             
+    EndController:
+        rts
+    
+    
+    MoveRight:
+        lda $0203
+        adc #$0002
+        sta $0203
+        rts
+    MoveLeft:
+        lda $0203
+        sbc #$0002
+        sta $0203
+        rts
+    MoveUp:
+        lda $0200
+        sbc #$0002
+        sta $0200
+        rts
+    MoveDown:
+        lda $0200
+        adc #$0002
+        sta $0200
+        rts
+
+
+
 
 
     ; ; ; ; ; ; ; ; ; ; ; ;
@@ -206,6 +228,9 @@
         sta $4014
 
         jsr CheckController
+        lda $2002
+        sta debug
+        
         
         rti ; interrupt return
 
@@ -216,15 +241,15 @@
 
     PaletteData: ;example
         ; example background palette data
-        .byte $22,$29,$1A,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
+        .byte $15,$30,$30,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
         ; example sprite palette data  
-        .byte $22,$16,$27,$18,$22,$1A,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
+        .byte $17,$16,$27,$30,$22,$30,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
     ; 1st byte: y-offset
     ; 2nd byte: tile
-    ; 3rd byte: ?
+    ; 3rd byte: attributes
     ; 4th byte: x-offset
     SpriteData: ; example
-        .byte $BF, $04, $00, $80
+        .byte $BF, $15, $00, $80
 
     BGData:
         .incbin "grid.bin"
