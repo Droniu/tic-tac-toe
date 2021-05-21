@@ -1,5 +1,3 @@
-Pressing = $06
-
 .segment "HEADER" ; what code is
     .byte "NES" ; beginning of the NES Header
     .byte $1a ; signature of NES Header
@@ -13,6 +11,7 @@ Pressing = $06
     .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
     background: .res 2
+    pressing: .res 1
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -158,10 +157,43 @@ Pressing = $06
         
         lda $4016 ; %0000001 
         lsr
-        ror Pressing  ; RLDUsSBA
+        ror pressing  ; RLDUSsBA
         inx
         cpx #$08
         bne ConLoop
+        
+        CheckRight:
+            lda #%10000000
+            and pressing
+            beq CheckLeft
+        CheckLeft:
+            lda #%01000000
+            and pressing
+            beq CheckDown
+        CheckDown:
+            lda #%00100000
+            and pressing
+            beq CheckUp
+        CheckUp:
+            lda #%00010000
+            and pressing
+            beq CheckStart
+        CheckStart:
+            lda #%00001000
+            and pressing
+            beq CheckSelect
+        CheckSelect:
+            lda #%00000100
+            and pressing
+            beq CheckB
+        CheckB:
+            lda #%00000010
+            and pressing
+            beq CheckA
+        CheckA:
+            lda #%00000001
+            and pressing
+            
 
 
     ; ; ; ; ; ; ; ; ; ; ; ;
