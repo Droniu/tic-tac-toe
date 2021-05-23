@@ -14,6 +14,7 @@
     menuBg: .res 2
     gameBg: .res 2
     pressing: .res 1
+    pressingOld: .res 1
     position: .res 1
 .segment "STARTUP" ; where code starts
     Reset:
@@ -55,7 +56,7 @@
         sta $0600, X
         sta $0700, X
 
-        ; one of the ranges is for sprie data. we can choose any
+        ; one of the ranges is for sprite data. we can choose any
         lda #$FF
         sta $0200, X
         lda #$00
@@ -80,6 +81,7 @@
 
         ldx #$00
 
+
     LoadPalettes:
         lda PaletteData, X
         sta $2007 ; $3F00, $3F01, and so on
@@ -88,6 +90,15 @@
         inx
         cpx #$20 ; 32 in decimal
         bne LoadPalettes
+
+        ldx #$00
+
+    LoadSprites:
+        lda SpriteData, X
+        sta $0200, X
+        inx
+        cpx #$20
+        bne LoadSprites
 
     LoadMenu:
         ; initialize world variable to point to world data
@@ -160,11 +171,15 @@
         jmp LoadGameLoop
 
     FinishLoadingGame:
-    ; enable interrupts
-        cli
+        lda #$04 ; default arrow position - middle tile
+        ; will be changed on keyboard hits
+        sta position
+        lda #$00
+
+        cli ; enable interrupts
         lda #%10000000 ; enable NMI
         sta $2000
-        ; enable drawing in leftmost 8px of screen and in general
+        ; enable drawing
         lda #%00011110
         sta $2001
         
@@ -183,6 +198,8 @@
         sta $4016 ; strobe controller
         ldx #$00
         stx $4016 ; latch controller status
+        lda pressing
+        sta pressingOld
     ConLoop:
         ; reading 4016 eight times in order to check buttons.
         ; we use carry flag to write button status to variables
@@ -195,35 +212,49 @@
         inx
         cpx #$08
         bne ConLoop
-        
+
+
         CheckRight:
-            lda #%10000000
+            lda pressing
+            eor pressingOld
             and pressing
+            and #%10000000
             beq CheckLeft
-           jsr MoveRight
+            jsr MoveRight
         CheckLeft:
-            lda #%01000000
+            lda pressing
+            eor pressingOld
             and pressing
+            and #%01000000
             beq CheckDown
             jsr MoveLeft
         CheckDown:
-            lda #%00100000
+            lda pressing
+            eor pressingOld
             and pressing
+            and #%00100000
             beq CheckUp
             jsr MoveDown
         CheckUp:
-            lda #%00010000
+            lda pressing
+            eor pressingOld
             and pressing
+            and #%00010000
             beq CheckStart
             jsr MoveUp
         CheckStart:
-            lda #%00001000
+            lda pressing
+            eor pressingOld
             and pressing
+            and #%00001000
             beq CheckA
             jsr StartGame
         CheckA:
-            lda #%00000001
+            lda pressing
+            eor pressingOld
             and pressing
+            and #%00000001
+            beq EndController
             
     EndController:
         rts
@@ -231,22 +262,46 @@
     
     MoveRight:
         lda $0203
-        adc #$0002
+        cmp #$B4 ; 180 pixels, max right position
+        bne :+
+        sbc #$0070 ; go max left
+        sta $0203
+        rts
+        :
+        adc #$0038 ; 56 pixels (7 tiles) to the right
         sta $0203
         rts
     MoveLeft:
         lda $0203
-        sbc #$0002
+        cmp #$44 ; 68 pixels, max left position
+        bne :+
+        lda #$B4
+        sta $0203
+        rts
+        :
+        sbc #$0038
         sta $0203
         rts
     MoveUp:
         lda $0200
-        sbc #$0002
+        cmp #$2E ; 46 pixels, max up position
+        bne :+
+        lda #$9E
+        sta $0200
+        rts
+        :
+        sbc #$0038
         sta $0200
         rts
     MoveDown:
         lda $0200
-        adc #$0002
+        cmp #$9E ; 158 pixels, max down position
+        bne :+
+        lda #$2E
+        sta $0200
+        rts
+        :
+        adc #$0038
         sta $0200
         rts
     StartGame:
@@ -255,7 +310,7 @@
         bne LoadGrid
         rts ; back if game already loaded
         LoadGrid:
-            lda #%10000010 ; enable NMI
+            lda #%10000010 ; 2nd nametable
             sta $2000
             rts
 
@@ -284,12 +339,15 @@
         .byte $15,$30,$30,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
         ; example sprite palette data  
         .byte $17,$16,$27,$30,$22,$30,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
+
     ; 1st byte: y-offset
     ; 2nd byte: tile
     ; 3rd byte: attributes
     ; 4th byte: x-offset
     SpriteData: ; example
-        .byte $BF, $15, $00, $80
+        .byte $66, $71, $00, $7C    ; selection arrow
+                                    ; $0200 - y, $0203 - x
+        
 
     GridData:
         .incbin "grid.bin"
