@@ -17,6 +17,8 @@
 Programs/
 tools/
 *.dbg
+*.deb
+*.cdl
 
 Example
 Tic-Tac-Toe_v2
