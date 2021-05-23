@@ -10,9 +10,11 @@
     .byte $00
     .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
-    background: .res 2
+    gameLoaded: .res 1
+    menuBg: .res 2
+    gameBg: .res 2
     pressing: .res 1
-    debug: .res 1
+    position: .res 1
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -32,6 +34,8 @@
 
         stx $4010 ; Disable PCM channel
         
+        stx gameLoaded
+
         : ; anonymous label
         bit $2002; $2002 is telling if PPU is currently drawing
         bpl :- ; branch if not in VBLANK (not waiting for another screen)
@@ -85,11 +89,12 @@
         cpx #$20 ; 32 in decimal
         bne LoadPalettes
 
+    LoadMenu:
         ; initialize world variable to point to world data
-        lda #<BGData
-        sta background
-        lda #>BGData
-        sta background+1
+        lda #<MenuData
+        sta menuBg
+        lda #>MenuData
+        sta menuBg+1
 
         ; setup address in PPU for nametable data
         bit $2002
@@ -101,37 +106,63 @@
         ldx #$00
         ldy #$00
 
-    LoadBackground:
-        lda (background), Y
+    LoadMenuLoop:
+        lda (menuBg), Y
         sta $2007
         iny
         ; 960 px is 03 C0 in hex
         cpx #$03
         bne :+
         cpy #$C0
-        beq DoneLoadingBG
+        beq MenuDone
     :
         cpy #$00
-        bne LoadBackground
+        bne LoadMenuLoop
         inx
-        inc background+1
-        jmp LoadBackground
+        inc menuBg+1
+        jmp LoadMenuLoop
 
 
-    DoneLoadingBG:
+    MenuDone:
         ldx #$00
-    
-    LoadSprites:
 
-        lda SpriteData, X
-        sta $0200, X
+    LoadGame:
+        ; initialize world variable to point to world data
+        lda #<GridData
+        sta gameBg
+        lda #>GridData
+        sta gameBg+1
+
+        ; setup address in PPU for nametable data
+        bit $2002
+        lda #$28
+        sta $2006
+        lda #$00
+        sta $2006        
+
+        ldx #$00
+        ldy #$00
+
+    LoadGameLoop:
+        lda (gameBg), Y
+        sta $2007
+        iny
+        ; 960 px is 03 C0 in hex
+        cpx #$03
+        bne :+
+        cpy #$C0
+        beq FinishLoadingGame
+    :
+        cpy #$00
+        bne LoadGameLoop
         inx
-        cpx #$20
-        bne LoadSprites
-    
+        inc gameBg+1
+        jmp LoadGameLoop
+
+    FinishLoadingGame:
     ; enable interrupts
         cli
-        lda #%10010000 ; enable NMI, use second set of sprites
+        lda #%10000000 ; enable NMI
         sta $2000
         ; enable drawing in leftmost 8px of screen and in general
         lda #%00011110
@@ -140,7 +171,7 @@
 
 
     Forever:
-        jmp Forever ; prevents going to NMI after pushing reset
+        jmp Forever ; game loop
 
 
     ; ; ; ; ; ; ; ; ; ; ; ;
@@ -183,8 +214,13 @@
         CheckUp:
             lda #%00010000
             and pressing
-            beq CheckA
+            beq CheckStart
             jsr MoveUp
+        CheckStart:
+            lda #%00001000
+            and pressing
+            beq CheckA
+            jsr StartGame
         CheckA:
             lda #%00000001
             and pressing
@@ -213,9 +249,15 @@
         adc #$0002
         sta $0200
         rts
-
-
-
+    StartGame:
+        lda #$01
+        cmp gameLoaded
+        bne LoadGrid
+        rts ; back if game already loaded
+        LoadGrid:
+            lda #%10000010 ; enable NMI
+            sta $2000
+            rts
 
 
     ; ; ; ; ; ; ; ; ; ; ; ;
@@ -228,8 +270,6 @@
         sta $4014
 
         jsr CheckController
-        lda $2002
-        sta debug
         
         
         rti ; interrupt return
@@ -251,8 +291,10 @@
     SpriteData: ; example
         .byte $BF, $15, $00, $80
 
-    BGData:
+    GridData:
         .incbin "grid.bin"
+    MenuData:
+        .incbin "main_menu.bin"
 
 
 .segment "VECTORS" ; special address which 6502 needs
