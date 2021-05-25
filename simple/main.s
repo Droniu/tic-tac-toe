@@ -10,12 +10,13 @@
     .byte $00
     .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
-    gameLoaded: .res 1
+    gameLoaded: .res 1 ; for disabling start after title screen
     menuBg: .res 2
     gameBg: .res 2
     pressing: .res 1
     pressingOld: .res 1
-    position: .res 1
+    position: .res 1 ; 0 - top left, 8 - bottm right
+    turn: .res 1 ; 0 = x, 1 = o
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -175,12 +176,13 @@
         ; will be changed on keyboard hits
         sta position
         lda #$00
+        sta turn
 
         cli ; enable interrupts
         lda #%10000000 ; enable NMI
         sta $2000
-        ; enable drawing
-        lda #%00011110
+        ; enable drawing (but no sprites -> 4th bit)
+        lda #%00001110
         sta $2001
         
 
@@ -213,7 +215,7 @@
         cpx #$08
         bne ConLoop
 
-
+        
         CheckRight:
             lda pressing
             eor pressingOld
@@ -255,6 +257,7 @@
             and pressing
             and #%00000001
             beq EndController
+            jsr PressA
             
     EndController:
         rts
@@ -284,9 +287,9 @@
         rts
     MoveUp:
         lda $0200
-        cmp #$2E ; 46 pixels, max up position
+        cmp #$32 ; 50 pixels, max up position
         bne :+
-        lda #$9E
+        lda #$A2
         sta $0200
         rts
         :
@@ -295,9 +298,9 @@
         rts
     MoveDown:
         lda $0200
-        cmp #$9E ; 158 pixels, max down position
+        cmp #$A2 ; 162 pixels, max down position
         bne :+
-        lda #$2E
+        lda #$32
         sta $0200
         rts
         :
@@ -310,9 +313,52 @@
         bne LoadGrid
         rts ; back if game already loaded
         LoadGrid:
-            lda #%10000010 ; 2nd nametable
+            sta gameLoaded
+            bit $2002
+            lda #$00
+            sta $2005
+            lda #$EF ; scroll to 2nd screen
+            sta $2005
+            lda #%10000000 ; default values
             sta $2000
+            lda #%00011110 ; enable sprites
+            sta $2001
             rts
+
+    PressA:
+        lda gameLoaded
+        cmp #$00
+        bne :+
+        rts
+    :   lda turn
+        ;cmp #$00
+        ;bne :+ 
+        jsr DrawX
+        jsr LoadGrid ; load defaults
+        rts
+
+
+    DrawX:
+        lda position
+        cmp #$04
+        beq DrawX4
+        DrawX4:
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 ; cpx sets carry to 1 so its +1 actually
+        :   sta $2006
+            lda center, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+
 
 
     ; ; ; ; ; ; ; ; ; ; ; ;
@@ -335,19 +381,85 @@
     ; ; ; ; ; ; ; ; ; ; ; ;
 
     PaletteData: ;example
-        ; example background palette data
+        ; background palette data
         .byte $15,$30,$30,$0F,$22,$36,$17,$0f,$22,$30,$21,$0f,$22,$27,$17,$0F
-        ; example sprite palette data  
+        ; sprite palette data  
         .byte $17,$16,$27,$30,$22,$30,$30,$27,$22,$16,$30,$27,$22,$0F,$36,$17
 
     ; 1st byte: y-offset
     ; 2nd byte: tile
     ; 3rd byte: attributes
     ; 4th byte: x-offset
-    SpriteData: ; example
-        .byte $66, $71, $00, $7C    ; selection arrow
+
+    topleft:
+        .byte $66,$67,$68,$69
+        .byte $86,$87,$88,$89
+        .byte $a6,$a7,$a8,$a9
+        .byte $c6,$c7,$c8,$c9
+    top:
+        .byte $6e,$6f,$70,$71
+        .byte $8e,$8f,$90,$91
+        .byte $ae,$af,$b0,$b1
+        .byte $ce,$cf,$d0,$d1
+    topright:
+        .byte $76,$77,$78,$79
+        .byte $96,$97,$98,$99
+        .byte $b6,$b7,$b8,$b9
+        .byte $d6,$d7,$d8,$d9
+    left:
+        .byte $66,$67,$68,$69
+        .byte $86,$87,$88,$89
+        .byte $a6,$a7,$a8,$a9
+        .byte $c6,$c7,$c8,$c9
+    center:
+        .byte $ce,$cf,$d0,$d1
+        .byte $ee,$ef,$f0,$f1
+        .byte $0e,$0f,$10,$11
+        .byte $2e,$2f,$30,$31
+    right:
+        .byte $76,$77,$78,$79
+        .byte $96,$97,$98,$99
+        .byte $b6,$b7,$b8,$b9
+        .byte $d6,$d7,$d8,$d9
+    bottomleft:
+        .byte $66,$67,$68,$69
+        .byte $86,$87,$88,$89
+        .byte $a6,$a7,$a8,$a9
+        .byte $c6,$c7,$c8,$c9
+    bottom:
+        .byte $6e,$6f,$70,$71
+        .byte $8e,$8f,$90,$91
+        .byte $ae,$af,$b0,$b1
+        .byte $ce,$cf,$d0,$d1
+    bottomright:
+        .byte $76,$77,$78,$79
+        .byte $96,$97,$98,$99
+        .byte $b6,$b7,$b8,$b9
+        .byte $d6,$d7,$d8,$d9
+    clear:
+        .byte $00,$00,$00,$00
+        .byte $00,$00,$00,$00
+        .byte $00,$00,$00,$00
+        .byte $00,$00,$00,$00
+
+    xspr:
+        .byte $80,$81,$82,$83
+        .byte $90,$91,$92,$93
+        .byte $a0,$a1,$a2,$a3
+        .byte $b0,$b1,$b2,$b3
+
+    ospr:
+        .byte $84,$85,$86,$87
+        .byte $94,$95,$96,$97
+        .byte $a4,$a5,$a6,$a7
+        .byte $b4,$b5,$b6,$b7
+    
+    SpriteData:
+        .byte $6A, $71, $00, $7C    ; selection arrow
                                     ; $0200 - y, $0203 - x
+        ;.byte 
         
+
 
     GridData:
         .incbin "grid.bin"
