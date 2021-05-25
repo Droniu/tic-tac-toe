@@ -595,7 +595,7 @@
 
     topleft:
         .byte $e7,$e8,$e9,$ea
-        .byte $07,$08,$0a,$0b
+        .byte $07,$08,$09,$0a
         .byte $27,$28,$29,$2a
         .byte $47,$48,$49,$4a
     top:
@@ -627,7 +627,7 @@
         .byte $a7,$a8,$a9,$aa
         .byte $c7,$c8,$c9,$ca
         .byte $e7,$e8,$e9,$ea
-        .byte $07,$08,$08,$0a
+        .byte $07,$08,$09,$0a 
     bottom:
         .byte $ae,$af,$b0,$b1
         .byte $ce,$cf,$d0,$d1
