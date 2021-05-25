@@ -269,10 +269,13 @@
         bne :+
         sbc #$0070 ; go max left
         sta $0203
+        dec position
+        dec position
         rts
         :
         adc #$0038 ; 56 pixels (7 tiles) to the right
         sta $0203
+        inc position
         rts
     MoveLeft:
         lda $0203
@@ -280,10 +283,13 @@
         bne :+
         lda #$B4
         sta $0203
+        inc position
+        inc position
         rts
         :
         sbc #$0038
         sta $0203
+        dec position
         rts
     MoveUp:
         lda $0200
@@ -291,10 +297,19 @@
         bne :+
         lda #$A2
         sta $0200
+        inc position
+        inc position
+        inc position
+        inc position
+        inc position
+        inc position
         rts
         :
         sbc #$0038
         sta $0200
+        dec position
+        dec position
+        dec position
         rts
     MoveDown:
         lda $0200
@@ -302,10 +317,19 @@
         bne :+
         lda #$32
         sta $0200
+        dec position
+        dec position
+        dec position
+        dec position
+        dec position
+        dec position
         rts
         :
         adc #$0038
         sta $0200
+        inc position
+        inc position
+        inc position
         rts
     StartGame:
         lda #$01
@@ -339,18 +363,196 @@
 
 
     DrawX:
-        lda position
-        cmp #$04
-        beq DrawX4
+        lda #$00
+        cmp position
+        bne :+
+        jmp DrawX0
+    :    
+        lda #$01
+        cmp position
+        bne :+
+        jmp DrawX1
+    :   
+
+        lda #$02
+        cmp position
+        bne :+
+        jmp DrawX2
+    :   
+
+        lda #$03
+        cmp position
+        bne :+
+        jmp DrawX3
+    :   
+
+        lda #$04
+        cmp position
+        bne :+
+        jmp DrawX4
+    :   
+
+        lda #$05
+        cmp position
+        bne :+
+        jmp DrawX5
+    :   
+
+        lda #$06
+        cmp position
+        bne :+
+        jmp DrawX6
+    :   
+
+        lda #$07
+        cmp position
+        bne :+
+        jmp DrawX7
+    :   
+
+        lda #$08
+        cmp position
+        bne :+
+        jmp DrawX8
+    :   
+        
+        DrawX0:
+            ldx #$00
+            bit $2002
+        :   lda #$28 ; high byte = 28
+            cpx #$04  ; high byte = 29
+            bmi :+
+            adc #$00 ; cpx sets carry to 1 so its +1 actually
+        :   sta $2006
+            lda topleft, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX1:
+            ldx #$00
+            bit $2002
+        :   lda #$28
+            cpx #$04 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda top, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX2:
+            ldx #$00
+            bit $2002
+        :   lda #$28
+            cpx #$04 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda topright, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX3:
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda left, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
         DrawX4:
             ldx #$00
             bit $2002
         :   lda #$29
             cpx #$08 
             bmi :+
-            adc #$00 ; cpx sets carry to 1 so its +1 actually
+            adc #$00
         :   sta $2006
             lda center, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX5:
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda right, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX6:
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottomleft, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX7:
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottom, X
+            sta $2006
+            lda xspr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawX8:
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottomright, X
             sta $2006
             lda xspr, X
             sta $2007
