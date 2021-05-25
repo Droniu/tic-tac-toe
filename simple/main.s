@@ -392,50 +392,50 @@
     ; 4th byte: x-offset
 
     topleft:
-        .byte $66,$67,$68,$69
-        .byte $86,$87,$88,$89
-        .byte $a6,$a7,$a8,$a9
-        .byte $c6,$c7,$c8,$c9
+        .byte $e7,$e8,$e9,$ea
+        .byte $07,$08,$0a,$0b
+        .byte $27,$28,$29,$2a
+        .byte $47,$48,$49,$4a
     top:
-        .byte $6e,$6f,$70,$71
-        .byte $8e,$8f,$90,$91
-        .byte $ae,$af,$b0,$b1
-        .byte $ce,$cf,$d0,$d1
+        .byte $ee,$ef,$f0,$f1
+        .byte $0e,$0f,$10,$11
+        .byte $2e,$2f,$30,$31
+        .byte $4e,$4f,$50,$51
     topright:
-        .byte $76,$77,$78,$79
-        .byte $96,$97,$98,$99
-        .byte $b6,$b7,$b8,$b9
-        .byte $d6,$d7,$d8,$d9
+        .byte $f5,$f6,$f7,$f8
+        .byte $15,$16,$17,$18
+        .byte $35,$36,$37,$38
+        .byte $55,$56,$57,$58
     left:
-        .byte $66,$67,$68,$69
-        .byte $86,$87,$88,$89
-        .byte $a6,$a7,$a8,$a9
-        .byte $c6,$c7,$c8,$c9
+        .byte $c7,$c8,$c9,$ca
+        .byte $e7,$e8,$e9,$ea
+        .byte $07,$08,$09,$0a
+        .byte $27,$28,$29,$2a
     center:
         .byte $ce,$cf,$d0,$d1
         .byte $ee,$ef,$f0,$f1
         .byte $0e,$0f,$10,$11
         .byte $2e,$2f,$30,$31
     right:
-        .byte $76,$77,$78,$79
-        .byte $96,$97,$98,$99
-        .byte $b6,$b7,$b8,$b9
-        .byte $d6,$d7,$d8,$d9
+        .byte $d5,$d6,$d7,$d8
+        .byte $f5,$f6,$f7,$f8
+        .byte $15,$16,$17,$18
+        .byte $35,$36,$37,$38
     bottomleft:
-        .byte $66,$67,$68,$69
-        .byte $86,$87,$88,$89
-        .byte $a6,$a7,$a8,$a9
-        .byte $c6,$c7,$c8,$c9
+        .byte $a7,$a8,$a9,$aa
+        .byte $c7,$c8,$c9,$ca
+        .byte $e7,$e8,$e9,$ea
+        .byte $07,$08,$08,$0a
     bottom:
-        .byte $6e,$6f,$70,$71
-        .byte $8e,$8f,$90,$91
         .byte $ae,$af,$b0,$b1
         .byte $ce,$cf,$d0,$d1
+        .byte $ee,$ef,$f0,$f1
+        .byte $0e,$0f,$10,$11
     bottomright:
-        .byte $76,$77,$78,$79
-        .byte $96,$97,$98,$99
-        .byte $b6,$b7,$b8,$b9
-        .byte $d6,$d7,$d8,$d9
+        .byte $b5,$b6,$b7,$b8
+        .byte $d5,$d6,$d7,$d8
+        .byte $f5,$f6,$f7,$f8
+        .byte $15,$16,$17,$18
     clear:
         .byte $00,$00,$00,$00
         .byte $00,$00,$00,$00
