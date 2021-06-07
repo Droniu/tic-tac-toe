@@ -10,6 +10,7 @@
     .byte $00
     .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
+    debug: .res 1
     gameLoaded: .res 1 ; for disabling start after title screen
     menuBg: .res 2
     gameBg: .res 2
@@ -362,12 +363,22 @@
         cmp #$00
         bne :+
         rts
-    :   lda turn
-        ;cmp #$00
-        ;bne :+ 
+    :   ldx turn
+        cpx #$00
+        bne :+
+        inx
+        stx turn
+        ;stx debug
         jsr DrawX
         jsr LoadGrid ; load defaults
         rts
+    :   dex
+        stx turn
+        ;stx debug
+        jsr DrawO
+        jsr LoadGrid ; load defaults
+        rts
+
 
     PressB:
         lda gameLoaded
