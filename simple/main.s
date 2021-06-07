@@ -357,7 +357,7 @@
     :   lda turn
         ;cmp #$00
         ;bne :+ 
-        jsr DrawX
+        jsr DrawO
         jsr LoadGrid ; load defaults
         rts
 
@@ -561,7 +561,204 @@
             bne :--
             rts
 
+    DrawO:
+        lda #$00
+        cmp position
+        bne :+
+        jmp DrawO0
+    :    
+        lda #$01
+        cmp position
+        bne :+
+        jmp DrawO1
+    :   
 
+        lda #$02
+        cmp position
+        bne :+
+        jmp DrawO2
+    :   
+
+        lda #$03
+        cmp position
+        bne :+
+        jmp DrawO3
+    :   
+
+        lda #$04
+        cmp position
+        bne :+
+        jmp DrawO4
+    :   
+
+        lda #$05
+        cmp position
+        bne :+
+        jmp DrawO5
+    :   
+
+        lda #$06
+        cmp position
+        bne :+
+        jmp DrawO6
+    :   
+
+        lda #$07
+        cmp position
+        bne :+
+        jmp DrawO7
+    :   
+
+        lda #$08
+        cmp position
+        bne :+
+        jmp DrawO8
+    :   
+        
+        DrawO0:
+            ldx #$00
+            bit $2002
+        :   lda #$28 ; high byte = 28
+            cpx #$04  ; high byte = 29
+            bmi :+
+            adc #$00 ; cpx sets carry to 1 so its +1 actually
+        :   sta $2006
+            lda topleft, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO1:
+            ldx #$00
+            bit $2002
+        :   lda #$28
+            cpx #$04 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda top, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO2:
+            ldx #$00
+            bit $2002
+        :   lda #$28
+            cpx #$04 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda topright, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO3:
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda left, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO4:
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00
+        :   sta $2006
+            lda center, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO5:
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda right, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO6:
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottomleft, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO7:
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottom, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
+        DrawO8:
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottomright, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            rts
 
     ; ; ; ; ; ; ; ; ; ; ; ;
     ; INTERRUPTS SECTION  ;
