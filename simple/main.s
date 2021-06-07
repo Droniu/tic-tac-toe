@@ -17,6 +17,7 @@
     pressingOld: .res 1
     position: .res 1 ; 0 - top left, 8 - bottm right
     turn: .res 1 ; 0 = x, 1 = o
+    player: .res 1
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -256,8 +257,15 @@
             eor pressingOld
             and pressing
             and #%00000001
-            beq EndController
+            beq CheckB
             jsr PressA
+        CheckB:
+            lda pressing
+            eor pressingOld
+            and pressing
+            and #%00000010
+            beq EndController
+            jsr PressB
             
     EndController:
         rts
@@ -350,6 +358,18 @@
             rts
 
     PressA:
+        lda gameLoaded
+        cmp #$00
+        bne :+
+        rts
+    :   lda turn
+        ;cmp #$00
+        ;bne :+ 
+        jsr DrawX
+        jsr LoadGrid ; load defaults
+        rts
+
+    PressB:
         lda gameLoaded
         cmp #$00
         bne :+
