@@ -11,6 +11,7 @@
     .byte $00, $00, $00, $00, $00 ; filler bytes
 .segment "ZEROPAGE"
     debug: .res 1
+    move: .res 1
     gameLoaded: .res 1 ; for disabling start after title screen
     menuBg: .res 2
     gameBg: .res 2
@@ -18,7 +19,13 @@
     pressingOld: .res 1
     position: .res 1 ; 0 - top left, 8 - bottm right
     turn: .res 1 ; 0 = x, 1 = o
-    player: .res 1
+    square: .res 9
+    ; 00000000 - unoccupied
+    ; 00000001 - X (1)
+    ; 11111111 - O (-1)
+
+
+
 .segment "STARTUP" ; where code starts
     Reset:
         sei ; disables all interrupts on NES
@@ -177,8 +184,10 @@
         lda #$04 ; default arrow position - middle tile
         ; will be changed on keyboard hits
         sta position
-        lda #$00
-        sta turn
+        ldx #$00
+        stx turn
+        inx
+        stx move
 
         cli ; enable interrupts
         lda #%10000000 ; enable NMI
@@ -359,24 +368,34 @@
             rts
 
     PressA:
+        ; check if in main menu
         lda gameLoaded
         cmp #$00
         bne :+
         rts
+
+        ; check whose turn
     :   ldx turn
         cpx #$00
         bne :+
+        
+
+
+        ; this happens when turn=0 (X turn)
         inx
         stx turn
-        ;stx debug
         jsr DrawX
         jsr LoadGrid ; load defaults
+        jsr EndgameConditions
+        inc move
         rts
+        ; this happens when turn=1 (O turn)
     :   dex
         stx turn
-        ;stx debug
         jsr DrawO
-        jsr LoadGrid ; load defaults
+        jsr LoadGrid
+        jsr EndgameConditions
+        inc move
         rts
 
 
@@ -385,10 +404,7 @@
         cmp #$00
         bne :+
         rts
-    :   lda turn
-        ;cmp #$00
-        ;bne :+ 
-        jsr DrawO
+    :   jsr DrawO
         jsr LoadGrid ; load defaults
         rts
 
@@ -448,6 +464,8 @@
     :   
         
         DrawX0:
+            lda #$01
+            sta square
             ldx #$00
             bit $2002
         :   lda #$28 ; high byte = 28
@@ -464,6 +482,8 @@
             bne :--
             rts
         DrawX1:
+            lda #$01
+            sta square+1
             ldx #$00
             bit $2002
         :   lda #$28
@@ -480,6 +500,8 @@
             bne :--
             rts
         DrawX2:
+            lda #$01
+            sta square+2
             ldx #$00
             bit $2002
         :   lda #$28
@@ -496,6 +518,8 @@
             bne :--
             rts
         DrawX3:
+            lda #$01
+            sta square+3
             ldx #$00
             bit $2002
         :   lda #$29
@@ -512,6 +536,8 @@
             bne :--
             rts
         DrawX4:
+            lda #$01
+            sta square+4
             ldx #$00
             bit $2002
         :   lda #$29
@@ -528,6 +554,8 @@
             bne :--
             rts
         DrawX5:
+            lda #$01
+            sta square+5
             ldx #$00
             bit $2002
         :   lda #$29
@@ -544,6 +572,8 @@
             bne :--
             rts
         DrawX6:
+            lda #$01
+            sta square+6
             ldx #$00
             bit $2002
         :   lda #$2a
@@ -560,6 +590,8 @@
             bne :--
             rts
         DrawX7:
+            lda #$01
+            sta square+7
             ldx #$00
             bit $2002
         :   lda #$2a
@@ -576,6 +608,8 @@
             bne :--
             rts
         DrawX8:
+            lda #$01
+            sta square+8
             ldx #$00
             bit $2002
         :   lda #$2a
@@ -647,6 +681,8 @@
     :   
         
         DrawO0:
+            lda #$FF
+            sta square
             ldx #$00
             bit $2002
         :   lda #$28 ; high byte = 28
@@ -663,6 +699,8 @@
             bne :--
             rts
         DrawO1:
+            lda #$FF
+            sta square+1
             ldx #$00
             bit $2002
         :   lda #$28
@@ -679,6 +717,8 @@
             bne :--
             rts
         DrawO2:
+            lda #$FF
+            sta square+2
             ldx #$00
             bit $2002
         :   lda #$28
@@ -695,6 +735,8 @@
             bne :--
             rts
         DrawO3:
+            lda #$FF
+            sta square+3
             ldx #$00
             bit $2002
         :   lda #$29
@@ -711,6 +753,8 @@
             bne :--
             rts
         DrawO4:
+            lda #$FF
+            sta square+4
             ldx #$00
             bit $2002
         :   lda #$29
@@ -727,6 +771,8 @@
             bne :--
             rts
         DrawO5:
+            lda #$FF
+            sta square+5
             ldx #$00
             bit $2002
         :   lda #$29
@@ -743,6 +789,8 @@
             bne :--
             rts
         DrawO6:
+            lda #$FF
+            sta square+6
             ldx #$00
             bit $2002
         :   lda #$2a
@@ -759,6 +807,8 @@
             bne :--
             rts
         DrawO7:
+            lda #$FF
+            sta square+7
             ldx #$00
             bit $2002
         :   lda #$2a
@@ -775,6 +825,8 @@
             bne :--
             rts
         DrawO8:
+            lda #$FF
+            sta square+8
             ldx #$00
             bit $2002
         :   lda #$2a
@@ -790,6 +842,125 @@
             cpx #$10
             bne :--
             rts
+
+    EndgameConditions:
+    ; 00000000 - unoccupied
+    ; 00000001 - X (1)
+    ; 11111111 - O (-1)
+    
+    ; we check if any sum is equal to 3
+    ; or -3
+    
+        CheckRow1:
+            lda square
+            clc
+            adc square+1
+            clc
+            adc square+2
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckRow2:
+            lda square+3
+            clc
+            adc square+4
+            clc
+            adc square+5
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckRow3:
+            lda square+6
+            clc
+            adc square+7
+            clc
+            adc square+8
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckCol1:
+            lda square
+            clc
+            adc square+3
+            clc
+            adc square+6
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckCol2:
+            lda square+1
+            clc
+            adc square+4
+            clc
+            adc square+7
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckCol3:
+            lda square+2
+            clc
+            adc square+6
+            clc
+            adc square+8
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckSlash:
+            lda square
+            clc
+            adc square+4
+            clc
+            adc square+8
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckBackSlash:
+            lda square+2
+            clc
+            adc square+4
+            clc
+            adc square+6
+            cmp #$03
+            beq WinX
+            cmp #$FD ; -3 in U2
+            beq WinO
+        CheckDraw:
+            lda move
+            cmp #$09
+            beq Draw
+            ; all conditions false - return
+            rts
+        WinX:
+            ; @ Increment X score 
+            inc $0205
+            jmp ClearSquares
+        WinO:
+            ; @ Increment O score 
+            inc $0209
+            jmp ClearSquares
+        Draw:
+            ; do not increment anything
+            lda #$90
+            sta debug
+            jmp ClearSquares
+
+
+        ; deleting Xs and Os graphics from grid
+        ClearSquares:
+            ; here we have to clear all variables
+            ; flip turn to other value
+            lda #$00
+            sta move
+            rts
+
+
 
     ; ; ; ; ; ; ; ; ; ; ; ;
     ; INTERRUPTS SECTION  ;
@@ -887,7 +1058,11 @@
     SpriteData:
         .byte $6A, $71, $00, $7C    ; selection arrow
                                     ; $0200 - y, $0203 - x
-        ;.byte 
+        .byte $10, $0F, $00, $58 ; initial score for X
+        .byte $18, $0F, $00, $58 ; initial score for O
+
+        ; increment $0205 for x score
+        ; increment $0209 for y score
         
 
 
