@@ -843,6 +843,9 @@
             bne :--
             rts
 
+    
+    
+    
     EndgameConditions:
     ; 00000000 - unoccupied
     ; 00000001 - X (1)
@@ -958,6 +961,141 @@
             ; flip turn to other value
             lda #$00
             sta move
+
+            ; clear square variable
+        :   lda #$00
+            ldy #$00
+            sta square, Y
+            iny
+            cpy #$09
+            bne :-
+            
+            ldx #$00
+            bit $2002
+        :   lda #$28 ; high byte = 28
+            cpx #$04  ; high byte = 29
+            bmi :+
+            adc #$00 ; cpx sets carry to 1 so its +1 actually
+        :   sta $2006
+            lda topleft, X
+            sta $2006
+            lda clear, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$28
+            cpx #$04 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda top, X
+            sta $2006
+            lda clear, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$28
+            cpx #$04 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda topright, X
+            sta $2006
+            lda clear, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda left, X
+            sta $2006
+            lda clear, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00
+        :   sta $2006
+            lda center, X
+            sta $2006
+            lda clear, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$29
+            cpx #$08 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda right, X
+            sta $2006
+            lda clear, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottomleft, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottom, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
+            ldx #$00
+            bit $2002
+        :   lda #$2a
+            cpx #$0c 
+            bmi :+
+            adc #$00 
+        :   sta $2006
+            lda bottomright, X
+            sta $2006
+            lda ospr, X
+            sta $2007
+            inx
+            cpx #$10
+            bne :--
             rts
 
 
@@ -1054,6 +1192,7 @@
         .byte $94,$95,$96,$97
         .byte $a4,$a5,$a6,$a7
         .byte $b4,$b5,$b6,$b7
+
     
     SpriteData:
         .byte $6A, $71, $00, $7C    ; selection arrow
