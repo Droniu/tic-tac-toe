@@ -686,16 +686,16 @@
             ldx #$00
             bit $2002
         :   lda #$28 ; high byte = 28
-            cpx #$04  ; high byte = 29
-            bmi :+
-            adc #$00 ; cpx sets carry to 1 so its +1 actually
-        :   sta $2006
-            lda topleft, X
-            sta $2006
-            lda ospr, X
-            sta $2007
-            inx
-            cpx #$10
+                cpx #$04   
+                bmi :+
+                    adc #$00 ; cpx sets carry to 1 so its +1 actually
+            :   sta $2006
+                lda topleft, X
+                sta $2006
+                lda ospr, X
+                sta $2007
+                inx
+                cpx #$10
             bne :--
             rts
         DrawO1:
@@ -950,8 +950,6 @@
             jmp ClearSquares
         Draw:
             ; do not increment anything
-            lda #$90
-            sta debug
             jmp ClearSquares
 
 
@@ -963,9 +961,9 @@
             sta move
 
             ; clear square variable
-        :   lda #$00
+            lda #$00
             ldy #$00
-            sta square, Y
+        :   sta square, Y
             iny
             cpy #$09
             bne :-
@@ -981,16 +979,6 @@
             sta $2006
             lda clear, X
             sta $2007
-            inx
-            cpx #$10
-            bne :--
-            ldx #$00
-            bit $2002
-        :   lda #$28
-            cpx #$04 
-            bmi :+
-            adc #$00 
-        :   sta $2006
             lda top, X
             sta $2006
             lda clear, X
@@ -998,6 +986,7 @@
             inx
             cpx #$10
             bne :--
+
             ldx #$00
             bit $2002
         :   lda #$28
