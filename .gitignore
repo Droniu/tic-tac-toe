@@ -3,22 +3,12 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=assembler
 
 ### Assembler ###
-*.exe
 *.o
 *.obj
-*.bc
-
-# End of https://www.toptal.com/developers/gitignore/api/assembler
 
 ### NES ###
 *.nes.ram.nl
 *.nes
-
-Programs/
-tools/
 *.dbg
 *.deb
 *.cdl
-
-Example
-Tic-Tac-Toe_v2
