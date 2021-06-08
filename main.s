@@ -19,6 +19,8 @@
     pressingOld: .res 1
     position: .res 1 ; 0 - top left, 8 - bottm right
     turn: .res 1 ; 0 = x, 1 = o
+    clearflag: .res 1 ; determines if the game ended
+    unoccupied: .res 2
     square: .res 9
     ; 00000000 - unoccupied
     ; 00000001 - X (1)
@@ -199,6 +201,8 @@
 
 
     Forever:
+        jsr CheckController
+        jsr EndgameConditions
         jmp Forever ; game loop
 
 
@@ -352,10 +356,11 @@
     StartGame:
         lda #$01
         cmp gameLoaded
-        bne LoadGrid
+        bne :+
         rts ; back if game already loaded
+        
+        :   sta gameLoaded
         LoadGrid:
-            sta gameLoaded
             bit $2002
             lda #$00
             sta $2005
@@ -386,7 +391,6 @@
         stx turn
         jsr DrawX
         jsr LoadGrid ; load defaults
-        jsr EndgameConditions
         inc move
         rts
         ; this happens when turn=1 (O turn)
@@ -394,7 +398,6 @@
         stx turn
         jsr DrawO
         jsr LoadGrid
-        jsr EndgameConditions
         inc move
         rts
 
@@ -847,13 +850,22 @@
     
     
     EndgameConditions:
+
+    ; if clearflag is set then this has already
+    ; been done and we wait for vblank so we can
+    ; return
+    
+    lda clearflag
+    cmp #$00
+    beq CheckRow1
+    rts
     ; 00000000 - unoccupied
     ; 00000001 - X (1)
     ; 11111111 - O (-1)
     
     ; we check if any sum is equal to 3
     ; or -3
-    
+
         CheckRow1:
             lda square
             clc
@@ -943,175 +955,213 @@
         WinX:
             ; @ Increment X score 
             inc $0205
-            jmp ClearSquares
+            jsr ResetGrid
+            rts
         WinO:
             ; @ Increment O score 
             inc $0209
-            jmp ClearSquares
+            jsr ResetGrid
+            rts
         Draw:
             ; do not increment anything
-            lda #$90
-            sta debug
-            jmp ClearSquares
+            jsr ResetGrid
+            rts
 
+        ResetGrid:
+            ldx #$01
+            stx clearflag
+            dex
+            stx move
+            rts
 
         ; deleting Xs and Os graphics from grid
         ClearSquares:
             ; here we have to clear all variables
             ; flip turn to other value
-            lda #$00
-            sta move
 
             ; clear square variable
-        :   lda #$00
+            lda #$00
+            sta clearflag
             ldy #$00
-            sta square, Y
+        :   sta square, Y
             iny
             cpy #$09
             bne :-
-            
+
+            ; first row
             ldx #$00
             bit $2002
-        :   lda #$28 ; high byte = 28
-            cpx #$04  ; high byte = 29
-            bmi :+
-            adc #$00 ; cpx sets carry to 1 so its +1 actually
-        :   sta $2006
-            lda topleft, X
+            lda #$28
             sta $2006
-            lda clear, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$e7 ; low byte top left position
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
+            ; second row
             ldx #$00
             bit $2002
-        :   lda #$28
-            cpx #$04 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda top, X
+            lda #$29
             sta $2006
-            lda clear, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$07 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
+            ; third row
             ldx #$00
             bit $2002
-        :   lda #$28
-            cpx #$04 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda topright, X
+            lda #$29
             sta $2006
-            lda clear, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$27 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
+            ; fourth row
             ldx #$00
             bit $2002
-        :   lda #$29
-            cpx #$08 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda left, X
+            lda #$29
             sta $2006
-            lda clear, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$47 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
             ldx #$00
             bit $2002
-        :   lda #$29
-            cpx #$08 
-            bmi :+
-            adc #$00
-        :   sta $2006
-            lda center, X
+            lda #$29
             sta $2006
-            lda clear, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$c7 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
             ldx #$00
             bit $2002
-        :   lda #$29
-            cpx #$08 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda right, X
+            lda #$29
             sta $2006
-            lda clear, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$e7 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
             ldx #$00
             bit $2002
-        :   lda #$2a
-            cpx #$0c 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda bottomleft, X
+            lda #$2a
             sta $2006
-            lda ospr, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$07 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
             ldx #$00
             bit $2002
-        :   lda #$2a
-            cpx #$0c 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda bottom, X
+            lda #$2a
             sta $2006
-            lda ospr, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$27 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
             ldx #$00
             bit $2002
-        :   lda #$2a
-            cpx #$0c 
-            bmi :+
-            adc #$00 
-        :   sta $2006
-            lda bottomright, X
+            lda #$2a
             sta $2006
-            lda ospr, X
-            sta $2007
-            inx
-            cpx #$10
-            bne :--
+            lda #$a7 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
+            ldx #$00
+            bit $2002
+            lda #$2a
+            sta $2006
+            lda #$c7 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
+            ldx #$00
+            bit $2002
+            lda #$2a
+            sta $2006
+            lda #$e7 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
+            ldx #$00
+            bit $2002
+            lda #$2b
+            sta $2006
+            lda #$07 
+            sta $2006
+            lda #$00
+            jsr ClearRow
+
             rts
+            
+            ClearRow:
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
+                
+                lda #$60
+                sta $2007
+                lda #$00
 
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
 
+                lda #$60
+                sta $2007
+                lda #$00
+
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
+                sta $2007
+                rts
 
     ; ; ; ; ; ; ; ; ; ; ; ;
     ; INTERRUPTS SECTION  ;
     ; ; ; ; ; ; ; ; ; ; ; ;
 
     NMI:
+        ; backup registers
+        pha
+        txa
+        pha
+        tya
+        pha
+
         ; loading sprites from $0200 to ppu memory
         lda #$02 ; (2 because this is MSB)
         sta $4014
 
-        jsr CheckController
-        
-        
+        lda clearflag
+        cmp #$01
+        bne :+
+            jsr ClearSquares
+        :
+        lda gameLoaded
+        cmp #$00
+        beq :+
+            jsr LoadGrid 
+        : ; restore registers
+        pla
+        tay
+        pla
+        tax
+        pla
         rti ; interrupt return
 
 
