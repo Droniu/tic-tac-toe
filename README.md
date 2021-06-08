@@ -3,7 +3,7 @@
 After over a thousad lines of code in a language I hate, I think the project is ready.
 
 ## Requirements: 
-* [Compiler - cc65](https://cc65.github.io/getting-started.html) (not necessary if you download the package)
+* [Compiler - cc65](https://cc65.github.io/getting-started.html) (not necessary if you download the release version)
 * [Emulator - FCEUX](http://fceux.com/web/download.html)
 
 After cloning the repo we type `./make.bat` on Windows or `make` on Linux/macOS. Then, we open **main.nes** file.
