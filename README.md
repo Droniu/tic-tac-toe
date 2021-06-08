@@ -1,13 +1,13 @@
 # Tic-Tac-Toe game written in 6502 assembly for the NES.
 
-After over a thousad lines of code in a language I hate, I thnk the project is ready.
+After over a thousad lines of code in a language I hate, I think the project is ready.
 
 ## Requirements: 
 * [Compiler - cc65](https://cc65.github.io/getting-started.html) (not necessary if you download the package)
 * [Emulator - FCEUX](http://fceux.com/web/download.html)
 
 After cloning the repo we type `./make.bat` on Windows or `make` on Linux/macOS. Then, we open **main.nes** file.
-If you downloaded the package, there is no need to use make. Just open the file in FCEUX.
+If you downloaded the release version, there is no need to use make. Just open the file in FCEUX.
 
 ## Controls
 * Start - begin the game (works only in the title screen)
