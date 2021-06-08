@@ -10,9 +10,9 @@ After cloning the repo we type `./make.bat` on Windows or `make` on Linux/macOS.
 If you downloaded the release version, there is no need to use make. Just open the file in FCEUX.
 
 ## Controls
-* Start - begin the game (works only in the title screen)
+* Start (enter by default) - begin the game (works only in the title screen)
 * Arrows - movement of selection arrow on the board
-* A - place X or O
+* A (F key by default) - place X or O
 
 ## Screenshots
 ![Title Screen](./docs/1.jpg)
