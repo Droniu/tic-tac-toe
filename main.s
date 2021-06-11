@@ -271,15 +271,15 @@
             eor pressingOld
             and pressing
             and #%00000001
-            beq CheckB
-            jsr PressA
-        CheckB:
-            lda pressing
-            eor pressingOld
-            and pressing
-            and #%00000010
             beq EndController
-            jsr PressB
+            jsr PressA
+        ; CheckB:
+         ;   lda pressing
+          ;  eor pressingOld
+           ; and pressing
+           ; and #%00000010
+           ; beq EndController
+           ; jsr PressB
             
     EndController:
         rts
@@ -402,14 +402,14 @@
         rts
 
 
-    PressB:
-        lda gameLoaded
-        cmp #$00
-        bne :+
-        rts
-    :   jsr DrawO
-        jsr LoadGrid ; load defaults
-        rts
+    ; PressB:
+      ;  lda gameLoaded
+        ; cmp #$00
+        ;bne :+
+        ;rts
+    ; :   jsr DrawO
+     ;   jsr LoadGrid ; load defaults
+      ;  rts
 
 
     DrawX:
