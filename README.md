@@ -1,7 +1,5 @@
 # Tic-Tac-Toe game written in 6502 assembly for the NES.
 
-After over a thousad lines of code in a language I hate, I think the project is ready.
-
 ## Requirements: 
 * [Compiler - cc65](https://cc65.github.io/getting-started.html) (not necessary if you download the release version)
 * [Emulator - FCEUX](http://fceux.com/web/download.html)
@@ -23,10 +21,9 @@ Win counter only works up to ten wins - after that it breaks. I wanted to fix it
 
 Another thing is that after detecting a winning position, the board is cleared almost immediately. There should be some pause, maybe animation and information about who won. But I belive the counter is enough in this case.
 
-
 ## Sources
 
-Materials I used for learning while making the project:
+Materials I used for learning while making this project:
 * [6502 instruction set](http://www.6502.org/tutorials/6502opcodes.html#STA)
 * [Nes Dev Wiki](https://wiki.nesdev.com/)
 * [Zero Pages video series by Michael Chiaramonte](https://www.youtube.com/watch?v=JgdcGcJga4w&list=PL29OkqO3wUxzOmjc0VKcdiNPqwliHEuEk)
@@ -40,6 +37,6 @@ For anyone interested in editing graphical files, excellent choices are:
 This software is made for Windows, but can be opened on MacOS and Linux using Wine. 
 
 ## Contact
-If you want to use my code or creeate a similar project - wheter it is for university or for hobby, feel free to contact me. I'm no expert on this, but I know the learning curve of assembly is really steep, so I can definitely help get you started.
+If you want to use my code or create a similar project - whether it is for university or for hobby, feel free to contact me. I'm no expert on this, but I know the learning curve of assembly is really steep, so I can definitely help get you started.
 
 *Project made as a part of the "Computer Architecture 2" course organized by Wroclaw University of Science and Technology.*
